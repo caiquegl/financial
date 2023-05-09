@@ -50,7 +50,7 @@ const AddList = ({ navigation }) => {
         });
       }
       reset();
-      navigation.navigate("Home");
+      navigation.navigate("HomeProducts");
     } catch (error) {
     } finally {
       setLoading(false);
@@ -72,7 +72,7 @@ const AddList = ({ navigation }) => {
             alignItems: "center",
             justifyContent: "center",
           }}>
-          <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+          <TouchableOpacity onPress={() => navigation.navigate("HomeProducts")}>
             <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
           <Text

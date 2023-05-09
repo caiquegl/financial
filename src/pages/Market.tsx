@@ -45,7 +45,7 @@ export default ({ navigation }) => {
             marginTop: 20,
           }}
           onPress={() => {
-            navigation.navigate("Home");
+            navigation.navigate("HomeProducts");
           }}>
           <View
             style={{

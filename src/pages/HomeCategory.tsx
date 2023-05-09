@@ -39,7 +39,7 @@ export default ({ navigation: { navigate } }) => {
           padding: 10,
           borderRadius: 5,
         }}
-        onPress={() => navigate("Market")}>
+        onPress={() => navigate("CategoryList")}>
         <Text
           style={{
             color: colors["gray.600"],

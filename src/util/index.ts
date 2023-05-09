@@ -21,10 +21,10 @@ export const calcTotal = (list: IProduct[]) => {
 export const defaultOptionsYesOrNo: IOptionsSelect[] = [
     {
         label: 'Sim',
-        value: true
+        value: 'sim'
     },
     {
         label: 'Não',
-        value: false
+        value: 'nao'
     }
 ]

@@ -1,4 +1,4 @@
-import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -9,36 +9,58 @@ import {
   ScrollView,
   ToastAndroid,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { colors } from "../../style";
 import { supabase } from "../../superbase";
 import { InputText } from "../components/form/input";
 import { InputSelect } from "../components/form/select";
-import { defaultOptionsYesOrNo } from "../util";
+import { IOptionsSelect, defaultOptionsYesOrNo } from "../util";
 
 export default ({ navigation: { navigate } }) => {
   const [loading, setLoading] = useState(false);
+  const [allCategory, setAllCategory] = useState<IOptionsSelect[]>([])
   const methods = useForm();
-  const { handleSubmit, control, reset } = methods;
+  const { handleSubmit, control, reset, watch } = methods;
 
-  const onSubmit = async (data) => {
+  const onSubmit = useCallback(async (data) => {
     try {
+
       setLoading(true);
-      const { error } = await supabase.from("category").insert(data);
+      if(data.is_primary === 'nao') delete data.sub_category
+
+      await supabase.from("category").insert({...data, is_primary: data.is_primary === 'sim' ? true : false});
       reset();
       navigate("HomeCategory");
       ToastAndroid.show("Sucesso ao cadastrar categoria", ToastAndroid.SHORT);
     } catch (error) {
+      ToastAndroid.show("Erro ao cadastrar categoria", ToastAndroid.SHORT);
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate, reset]);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const { data: categories, error } = await supabase
+        .from('category')
+        .select('id, name');
+      if (error) {
+        throw error;
+      }
+      setAllCategory(categories.map(item => ({value: item.id, label: item.name})));
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       reset();
-    }, [])
+      fetchCategories()
+    }, [reset, fetchCategories])
   );
+
 
   return (
     <ScrollView
@@ -113,6 +135,21 @@ export default ({ navigation: { navigate } }) => {
                   options={defaultOptionsYesOrNo}
                 />
               </View>
+              {watch('is_primary') === 'nao' &&
+                <View
+                  style={{
+                    marginBottom: 20,
+                  }}>
+                  <InputSelect
+                    control={control}
+                    name="sub_category"
+                    is_required={true}
+                    placeholder="principal"
+                    label="Categoria principal"
+                    options={allCategory}
+                  />
+                </View>
+              }
             </View>
             {loading ? (
               <ActivityIndicator />
@@ -137,3 +174,33 @@ export default ({ navigation: { navigate } }) => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    flexDirection: "row",
+    padding: 20,
+  },
+  title: {
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    fontSize: 18,
+    color: colors.black,
+    marginLeft: 10,
+  },
+  formContainer: {
+    justifyContent: "space-between",
+  },
+  buttonContainer: {
+    marginTop: 100,
+    backgroundColor: colors["green.500"],
+    borderWidth: 0,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 45,
+  },
+  buttonText: {
+    fontSize: 16,
+    color: colors.white
+  }
+});
