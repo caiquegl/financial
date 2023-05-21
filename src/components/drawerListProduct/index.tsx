@@ -9,8 +9,10 @@ import { InputText } from "../form/input";
 import { InputMoney } from "../form/inputMoney";
 import { IOptionsSelect } from "../../util";
 import { InputSelect } from "../form/select";
+import { userContext } from "../../context/userContext";
 
 export default (props) => {
+  const { user } = userContext();
   const [loading, setLoading] = useState(false);
   const [opt, setOpt] = useState<IOptionsSelect[]>([]);
   const { insertProduct } = productHook();
@@ -31,7 +33,7 @@ export default (props) => {
   };
 
   const getCategory = async () => {
-    const { data }: any = await supabase.from("category").select();
+    const { data }: any = await supabase.from("category").select().filter("user_id", "eq", user.id);
     setOpt(data.map((option) => ({ value: option.id, label: option.name })));
   };
 

@@ -5,6 +5,7 @@ import { Feather } from "@expo/vector-icons";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { supabase } from "../../superbase";
 import { colors } from "../../style";
+import { userContext } from "../context/userContext";
 
 interface IPropsList {
   date: string;
@@ -14,12 +15,16 @@ interface IPropsList {
 }
 
 export default ({ navigation }) => {
+  const { user } = userContext();
   const [loading, setLoading] = useState(false);
   const [list, setList] = useState<IPropsList[]>([]);
   const getList = async () => {
     try {
       setLoading(true);
-      const { data, error }: any = await supabase.from("market").select("*");
+      const { data, error }: any = await supabase
+        .from("market")
+        .select("*")
+        .filter("user_id", "eq", user.id);
       setList(data);
     } catch (error) {
     } finally {

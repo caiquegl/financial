@@ -16,39 +16,56 @@ import { supabase } from "../../superbase";
 import { InputText } from "../components/form/input";
 import { InputSelect } from "../components/form/select";
 import { IOptionsSelect, defaultOptionsYesOrNo } from "../util";
+import { userContext } from "../context/userContext";
 
 export default ({ navigation: { navigate } }) => {
+  const { user } = userContext();
   const [loading, setLoading] = useState(false);
-  const [allCategory, setAllCategory] = useState<IOptionsSelect[]>([])
+  const [allCategory, setAllCategory] = useState<IOptionsSelect[]>([]);
   const methods = useForm();
   const { handleSubmit, control, reset, watch } = methods;
 
-  const onSubmit = useCallback(async (data) => {
-    try {
-
-      setLoading(true);
-      if(data.is_primary === 'nao') delete data.sub_category
-
-      await supabase.from("category").insert({...data, is_primary: data.is_primary === 'sim' ? true : false});
-      reset();
-      navigate("HomeCategory");
-      ToastAndroid.show("Sucesso ao cadastrar categoria", ToastAndroid.SHORT);
-    } catch (error) {
-      ToastAndroid.show("Erro ao cadastrar categoria", ToastAndroid.SHORT);
-    } finally {
-      setLoading(false);
-    }
-  }, [navigate, reset]);
+  const onSubmit = useCallback(
+    async (data) => {
+      try {
+        setLoading(true);
+        if (data.is_primary === "sim") delete data.sub_category;
+        const { data: exist } = await supabase
+          .from("category")
+          .select("*")
+          .filter("user_id", "eq", user.id)
+          .filter("name", "ilike", data.name);
+        if (exist.length > 0)
+          return ToastAndroid.show("Erro, já existe categoria com esse nome", ToastAndroid.SHORT);
+        const { error } = await supabase
+          .from("category")
+          .insert({
+            ...data,
+            is_primary: data.is_primary === "sim" ? true : false,
+            user_id: user.id,
+          });
+        reset();
+        navigate("HomeCategory");
+        ToastAndroid.show("Sucesso ao cadastrar categoria", ToastAndroid.SHORT);
+      } catch (error) {
+        ToastAndroid.show("Erro ao cadastrar categoria", ToastAndroid.SHORT);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [navigate, reset]
+  );
 
   const fetchCategories = useCallback(async () => {
     try {
       const { data: categories, error } = await supabase
-        .from('category')
-        .select('id, name');
+        .from("category")
+        .select("id, name")
+        .filter("user_id", "eq", user.id);
       if (error) {
         throw error;
       }
-      setAllCategory(categories.map(item => ({value: item.id, label: item.name})));
+      setAllCategory(categories.map((item) => ({ value: item.id, label: item.name })));
     } catch (error) {
       console.error(error);
     }
@@ -57,10 +74,9 @@ export default ({ navigation: { navigate } }) => {
   useFocusEffect(
     useCallback(() => {
       reset();
-      fetchCategories()
+      fetchCategories();
     }, [reset, fetchCategories])
   );
-
 
   return (
     <ScrollView
@@ -135,7 +151,7 @@ export default ({ navigation: { navigate } }) => {
                   options={defaultOptionsYesOrNo}
                 />
               </View>
-              {watch('is_primary') === 'nao' &&
+              {watch("is_primary") === "nao" && (
                 <View
                   style={{
                     marginBottom: 20,
@@ -149,7 +165,7 @@ export default ({ navigation: { navigate } }) => {
                     options={allCategory}
                   />
                 </View>
-              }
+              )}
             </View>
             {loading ? (
               <ActivityIndicator />
@@ -201,6 +217,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    color: colors.white
-  }
+    color: colors.white,
+  },
 });

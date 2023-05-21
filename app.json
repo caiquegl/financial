@@ -2,6 +2,7 @@
   "expo": {
     "name": "financial",
     "slug": "financial",
+    "scheme": "com.caiquegl.financial",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,11 +15,10 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.caiquegl.financial"
     },
     "android": {
       "adaptiveIcon": {
@@ -34,6 +34,25 @@
       "eas": {
         "projectId": "80576616-5135-4a6c-9a1f-d15ba11795b4"
       }
+    },
+    "packagerOpts": {
+      "config": "metro.config.js",
+      "sourceExts": [
+      "expo.ts",
+      "expo.tsx",
+      "expo.js",
+      "expo.jsx",
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "wasm",
+      "svg"
+     ]
     }
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-9469948013599504~3476228810"
   }
 }

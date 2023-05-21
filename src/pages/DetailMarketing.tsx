@@ -5,6 +5,7 @@ import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "rea
 import { colors } from "../../style";
 import uuid from "react-native-uuid";
 import { supabase } from "../../superbase";
+import { userContext } from "../context/userContext";
 
 interface IPropsList {
   date: string;
@@ -14,6 +15,8 @@ interface IPropsList {
 }
 
 export default ({ route, navigation }) => {
+  const { user } = userContext();
+
   const [list, setList] = useState<IPropsList>({} as IPropsList);
   const [loading, setLoading] = useState(false);
   const getProducts = async () => {
@@ -21,6 +24,7 @@ export default ({ route, navigation }) => {
     const { data }: any = await supabase
       .from("products")
       .select("*")
+      .filter("user_id", "eq", user.id)
       .match({ market_id: route.params.id });
 
     setList({ ...route.params, products: data });

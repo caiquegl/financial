@@ -19,9 +19,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { colors } from "../../style";
+import { userContext } from "../context/userContext";
 const Drawer = createDrawerNavigator();
 
 const AddList = ({ navigation }) => {
+  const { user } = userContext();
+
   const [loading, setLoading] = useState(false);
   const [remove, setRemove] = useState(false);
   const methods = useForm();
@@ -30,15 +33,16 @@ const AddList = ({ navigation }) => {
 
   const onSubmit = async (dataBody: any) => {
     try {
-      // if (listProduct.length == 0) return;
       setLoading(true);
       let body = {
         ...dataBody,
-        // products: listProduct,
         date: moment().format("DD/MM/YYYY"),
         total: calcTotal(listProduct),
       };
-      const { data }: any = await supabase.from("market").insert(body).select();
+      const { data }: any = await supabase
+        .from("market")
+        .insert({ ...body, user_id: user.id })
+        .select();
 
       for await (let prod of listProduct) {
         await supabase.from("products").insert({
@@ -47,6 +51,7 @@ const AddList = ({ navigation }) => {
           qtd: prod.qtd,
           value: prod.value,
           category_id: prod.category_id,
+          user_id: user.id,
         });
       }
       reset();

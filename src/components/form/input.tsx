@@ -1,6 +1,6 @@
 import React from "react";
 import { Controller } from "react-hook-form";
-import { Text, TextInput, View, TextInputProps } from "react-native";
+import { Text, TextInput, View, TextInputProps, StyleSheet } from "react-native";
 import { colors } from "../../../style";
 
 export interface ITextInput extends TextInputProps {
@@ -8,43 +8,30 @@ export interface ITextInput extends TextInputProps {
   name: string;
   label?: string;
   is_required?: boolean;
+  placeholder?: string
 }
 
-export const InputText = ({ label, control, is_required, name, ...rest }: ITextInput) => {
+export const InputText = ({ label, control, is_required, name, placeholder,  ...rest }: ITextInput) => {
   return (
     <Controller
       control={control}
       name={name}
       rules={{ required: is_required ? "Campo obrigatório" : false }}
       render={({ field: { onChange, onBlur, value, name, ref }, fieldState: { error } }) => (
-        <View>
+        <View style={styles.inputContainer}>
           {label && (
             <Text
-              style={{
-                fontSize: 16,
-                color: colors["gray.600"],
-                margin: 5,
-              }}>
+              style={styles.inputLabel}>
               {label}
             </Text>
           )}
           <TextInput
-            placeholder="Input"
-            style={{
-              width: "100%",
-              paddingTop: 5,
-              paddingBottom: 5,
-              paddingLeft: 10,
-              borderWidth: 1,
-              borderColor: colors["gray.400"],
-              borderRadius: 5,
-              height: 50,
-            }}
             {...rest}
             value={value}
             onChangeText={(valueText) => onChange(valueText)}
             ref={ref}
-            id={name}
+            style={styles.input}
+            placeholder={placeholder}
           />
           {error && error.message && (
             <Text
@@ -61,3 +48,23 @@ export const InputText = ({ label, control, is_required, name, ...rest }: ITextI
     />
   );
 };
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    width: '100%',
+    marginBottom: 15,
+  },
+  inputLabel: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: '#2D6A4F',
+  },
+  input: {
+    width: '100%',
+    height: 40,
+    backgroundColor: '#FFF',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+  },
+  
+});

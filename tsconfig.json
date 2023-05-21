@@ -15,11 +15,6 @@
     "jsx": "preserve",
     "noImplicitAny": false
   },
-  "exclude": [
-    "node_modules",
-    "babel.config.js",
-    "metro.config.ts",
-    "jest.config.js"
-  ],
+  "exclude": ["node_modules", "babel.config.js", "metro.config.ts", "jest.config.js"],
   "extends": "expo/tsconfig.base"
 }

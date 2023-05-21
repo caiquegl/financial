@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Animated } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Animated } from "react-native";
 
 interface DrawerProps {
   isOpen: boolean;
@@ -34,8 +34,7 @@ const Drawer = ({ isOpen, onClose, children, left, right }: DrawerProps) => {
                   left: left ? 0 : undefined,
                   right: right ? 0 : undefined,
                 },
-              ]}
-            >
+              ]}>
               {children}
             </Animated.View>
           </View>
@@ -48,41 +47,41 @@ const Drawer = ({ isOpen, onClose, children, left, right }: DrawerProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   drawerContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
   },
   overlay: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: "rgba(0,0,0,0.4)",
   },
   drawer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     bottom: 0,
     width: 300,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   drawerContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f2f2f2',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f2f2f2",
   },
 });
 

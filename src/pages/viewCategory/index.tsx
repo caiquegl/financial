@@ -4,16 +4,30 @@ import { supabase } from "../../../superbase";
 import { colors } from "../../../style";
 import { Feather } from "@expo/vector-icons";
 import ExpandableCard from "./card.category";
+import { userContext } from "../../context/userContext";
 
 export default function CategoryList({ navigation: { navigate } }) {
   const [categories, setCategories] = useState<any>([]);
   const [loading, setLoading] = useState(true);
-  
+  const { user } = userContext();
+
   const fetchCategories = async () => {
-    setLoading(true)
+    setLoading(true);
     const { data: categories, error } = await supabase
       .from("category")
       .select("*")
+      .filter("user_id", "eq", user.id)
+      .eq("is_primary", true)
+      .order("name");
+
+      await supabase
+      .from('category')
+      .upsert(categories);
+
+      const { data: cachedCategories, error: cachedError } = await supabase
+      .from("category")
+      .select("*")
+      .filter("user_id", "eq", user.id)
       .eq("is_primary", true)
       .order("name");
 
@@ -25,13 +39,14 @@ export default function CategoryList({ navigation: { navigate } }) {
         const { data: subcategories, error } = await supabase
           .from("category")
           .select("*")
+          .filter("user_id", "eq", user.id)
           .eq("sub_category", category.id)
           .order("name");
 
         if (error) {
           console.error("Error fetching subcategories:", error);
         } else {
-          category.sub_category = subcategories
+          category.sub_category = subcategories;
           // Recursively fetch sub-subcategories
           for (const subcategory of subcategories) {
             await fetchSubcategories(subcategory);
@@ -43,15 +58,13 @@ export default function CategoryList({ navigation: { navigate } }) {
       for (const category of categories) {
         await fetchSubcategories(category);
       }
-
-      setCategories(categories);
+      // console.log(cachedCategories)
+      setCategories(cachedCategories);
     }
-    setLoading(false)
+    setLoading(false);
   };
- 
+
   useEffect(() => {
-
-
     fetchCategories();
   }, []);
 
@@ -61,7 +74,7 @@ export default function CategoryList({ navigation: { navigate } }) {
 
   return (
     <View style={styles.container}>
-            <View
+      <View
         style={{
           flexDirection: "row",
           padding: 20,
@@ -90,7 +103,7 @@ export default function CategoryList({ navigation: { navigate } }) {
               color: colors.black,
               marginLeft: 10,
             }}>
-             Categoria
+            Categoria
           </Text>
         </View>
       </View>
@@ -98,7 +111,7 @@ export default function CategoryList({ navigation: { navigate } }) {
         data={categories}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <ExpandableCard data={item} title={item.name} reload={fetchCategories}/>
+          <ExpandableCard data={item} title={item.name} reload={fetchCategories} />
         )}
       />
     </View>

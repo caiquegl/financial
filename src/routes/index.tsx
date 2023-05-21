@@ -1,108 +1,47 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
+import AutenticanteRoutes from "./autenticanteRoutes";
+import NoAutenticanteRoutes from "./noAutenticanteRoutes";
+import { userContext } from "../context/userContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import Coust from "../pages/Coust";
-import DetailMarketing from "../pages/DetailMarketing";
+export const Route = () => {
+  const { user, handleUser } = userContext();
+  const [loading, setLoading] = useState<boolean>(true);
 
-import Home from "../pages/Home";
-import Market from "../pages/Market";
-import HomeCategory from "../pages/HomeCategory";
-import AddCategory from "../pages/AddCategory";
-import CategoryList from "../pages/viewCategory";
-import HomeChart from "../pages/HomeChart";
+  useEffect(() => {
+    const getSession = async () => {
+      try {
+        const userSession = await AsyncStorage.getItem('userSession');
+        const users = JSON.parse(userSession);
 
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+        if (users && users.id) {
+          handleUser({ email: users.email, id: users.id, name: users.name, uuid: users.uuid });
+        }
+     
+      } catch (error) {
+        console.log(error, 'ERRO');
+      } finally {
+        setLoading(false);
+      }
+    };
+    getSession();
+  }, []);
 
-// Define as funções para serem passadas como propriedades
-const marketScreenOptions = {
-  headerShown: false,
-};
-
-const categoryScreenOptions = {
-  headerShown: false,
-};
-
-const tabBarOptions = {
-  activeTintColor: "tomato",
-  inactiveTintColor: "gray",
-  headerShown: false,
-  tabBarHideOnKeyboard: true,
-};
-
-const HomeStack = () => {
   return (
-    <Stack.Navigator screenOptions={marketScreenOptions}>
-      <Stack.Screen name="HomeProducts" component={Home} />
-      <Stack.Screen name="Coust" component={Coust} />
-      <Stack.Screen name="Market" component={Market} />
-      <Stack.Screen name="DetailMarketing" component={DetailMarketing} />
-    </Stack.Navigator>
-  );
-};
-
-const CategoryStack = () => {
-  return (
-    <Stack.Navigator screenOptions={categoryScreenOptions}>
-      <Stack.Screen name="HomeCategory" component={HomeCategory} />
-      <Stack.Screen name="AddCategory" component={AddCategory} />
-      <Stack.Screen name="CategoryList" component={CategoryList} />
-      <Stack.Screen name="Market" component={Market} />
-      <Stack.Screen name="DetailMarketing" component={DetailMarketing} />
-    </Stack.Navigator>
-  );
-};
-
-const ChartStack = () => {
-  return (
-    <Stack.Navigator screenOptions={categoryScreenOptions}>
-      <Stack.Screen name="HomeChart" component={HomeChart} />
-    </Stack.Navigator>
-  );
-};
-export default () => {
-  return (
-    <Tab.Navigator screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === "Home") {
-            iconName = focused ? "cart" : "cart-outline";
-          } else if (route.name === "Categoria") {
-            iconName = focused ? "albums" : "albums-outline";
-          }
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        ...tabBarOptions
-      })}
-    >
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Categoria" 
-        options={{
-          tabBarLabel: "Categorias",
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? "albums" : "albums-outline"}
-              color={color}
-              size={size}
-            />
-          ),
-        }}>
-        {() => <CategoryStack />}
-      </Tab.Screen>
-      <Tab.Screen name="Chart" 
-        options={{
-          tabBarLabel: "Gráficos",
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? "albums" : "albums-outline"}
-              color={color}
-              size={size}
-            />
-          ),
-        }}>
-        {() => <ChartStack />}
-      </Tab.Screen>
-    </Tab.Navigator>
+    <>
+      {loading ? (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            flex: 1,
+          }}>
+          <ActivityIndicator />
+        </View>
+      ) : (
+        <>{user?.id ? <AutenticanteRoutes /> : <NoAutenticanteRoutes />}</>
+      )}
+    </>
   );
 };
