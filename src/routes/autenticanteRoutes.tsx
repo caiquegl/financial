@@ -11,24 +11,18 @@ import HomeCategory from "../pages/HomeCategory";
 import AddCategory from "../pages/AddCategory";
 import CategoryList from "../pages/viewCategory";
 import HomeChart from "../pages/HomeChart";
+import colors from "../util/colors";
+import Transactions from "../pages/Transactions";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Define as funções para serem passadas como propriedades
 const marketScreenOptions = {
   headerShown: false,
 };
 
 const categoryScreenOptions = {
   headerShown: false,
-};
-
-const tabBarOptions = {
-  activeTintColor: "tomato",
-  inactiveTintColor: "gray",
-  headerShown: false,
-  tabBarHideOnKeyboard: true,
 };
 
 const HomeStack = () => {
@@ -61,29 +55,71 @@ const ChartStack = () => {
     </Stack.Navigator>
   );
 };
+
 export default () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarStyle: {
+          elevation: 0,
+          height: 50,
+          borderRadius: 19,
+          border: "none",
+          backgroundColor: colors.green,
+          marginBottom: 5,
+          marginHorizontal: 10,
+        },
+        activeTintColor: colors.btnText,
+        inactiveTintColor: colors.textSecondary,
+        headerShown: false,
+        tabBarIcon: ({ color, size, focused }) => {
           let iconName;
-          if (route.name === "Home") {
-            iconName = focused ? "cart" : "cart-outline";
+
+          if (route.name === "Início") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Transacao") {
+            iconName = "list";
           } else if (route.name === "Categoria") {
             iconName = focused ? "albums" : "albums-outline";
+          } else if (route.name === "Chart") {
+            iconName = focused ? "albums" : "albums-outline";
           }
-          return <Ionicons name={iconName} size={size} color={color} />;
+
+          return <Ionicons name={iconName} color={color} size={size} />;
         },
-        ...tabBarOptions,
       })}>
-      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen
+        name="Início"
+        component={HomeStack}
+        options={{
+          tabBarLabelStyle: {
+            fontSize: 12,
+          },
+          tabBarActiveTintColor: colors.btnText,
+          tabBarInactiveTintColor: colors.textSecondary,
+        }}
+      />
+      <Tab.Screen
+        name="Transacao"
+        component={Transactions}
+        options={{
+          tabBarLabel: "Transação",
+          tabBarLabelStyle: {
+            fontSize: 12,
+          },
+          tabBarActiveTintColor: colors.btnText,
+          tabBarInactiveTintColor: colors.textSecondary,
+        }}
+      />
       <Tab.Screen
         name="Categoria"
         options={{
           tabBarLabel: "Categorias",
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? "albums" : "albums-outline"} color={color} size={size} />
-          ),
+          tabBarLabelStyle: {
+            fontSize: 12,
+          },
+          tabBarActiveTintColor: colors.btnText,
+          tabBarInactiveTintColor: colors.textSecondary,
         }}>
         {() => <CategoryStack />}
       </Tab.Screen>
@@ -91,9 +127,11 @@ export default () => {
         name="Chart"
         options={{
           tabBarLabel: "Gráficos",
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? "albums" : "albums-outline"} color={color} size={size} />
-          ),
+          tabBarLabelStyle: {
+            fontSize: 12,
+          },
+          tabBarActiveTintColor: colors.btnText,
+          tabBarInactiveTintColor: colors.textSecondary,
         }}>
         {() => <ChartStack />}
       </Tab.Screen>

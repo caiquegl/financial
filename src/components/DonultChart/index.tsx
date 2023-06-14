@@ -1,19 +1,39 @@
 import React from "react";
-import { StyleSheet, View, Text, Dimensions } from "react-native";
+import { StyleSheet, View, Text, Dimensions, useWindowDimensions } from "react-native";
 import Svg, { Path, G, Text as SvgText } from "react-native-svg";
 
-const { width } = Dimensions.get("window");
-
-const DonutChart = ({ data, colors, strokeWidth, radius, holeRadius, centerText }) => {
-  const halfWidth = width / 2;
+const DonutChart = ({
+  data,
+  colors,
+  strokeWidth,
+  radius,
+  holeRadius,
+  centerText,
+  labelPosition,
+}) => {
+  const windowWidth = useWindowDimensions().width;
+  const halfWidth = windowWidth / 2;
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const anglePerUnit = 360 / total;
   let startAngle = -90;
 
   return (
-    <View style={styles.container}>
-      <Svg width={width} height={width}>
-        <G transform={`translate(${halfWidth}, ${halfWidth})`}>
+    <View
+      style={[
+        styles.container,
+        labelPosition &&
+          labelPosition === "right" && {
+            flexDirection: "row",
+            justifyContent: "space-between",
+          },
+      ]}>
+      <Svg
+        width={labelPosition === "right" ? windowWidth * 0.5 : windowWidth}
+        height={windowWidth * 0.7}>
+        <G
+          transform={`translate(${labelPosition === "right" ? halfWidth * 0.5 : halfWidth}, ${
+            halfWidth * 0.8
+          })`}>
           {data.map((item, index) => {
             const angle = anglePerUnit * item.value;
             const endAngle = startAngle + angle;
@@ -37,17 +57,12 @@ const DonutChart = ({ data, colors, strokeWidth, radius, holeRadius, centerText 
             startAngle = endAngle;
 
             return (
-              <>
-                <Path
-                  key={index}
-                  d={path}
-                  fill={colors[index % colors.length]}
-                  strokeWidth={strokeWidth}
-                />
-                <SvgText x={halfWidth} y={halfWidth - index * 35} textAnchor="middle" fontSize={16}>
-                  {item.title}
-                </SvgText>
-              </>
+              <Path
+                key={index}
+                d={path}
+                fill={colors[index % colors.length]}
+                strokeWidth={strokeWidth}
+              />
             );
           })}
         </G>
@@ -55,13 +70,27 @@ const DonutChart = ({ data, colors, strokeWidth, radius, holeRadius, centerText 
           {centerText}
         </SvgText>
       </Svg>
-      <View style={styles.legendContainer}>
+      <View
+        style={
+          labelPosition === "right" ? styles.legendContainerRight : styles.legendContainerBottom
+        }>
         {data.map((item, index) => (
-          <View key={index} style={styles.legendItem}>
-            <Text>{item.label}</Text>
-            <View
-              style={[styles.legendColor, { backgroundColor: colors[index % colors.length] }]}
-            />
+          <View
+            key={index}
+            style={labelPosition === "right" ? styles.legendItemRight : styles.legendItem}>
+            {labelPosition === "right" && (
+              <View
+                style={[styles.legendColor, { backgroundColor: colors[index % colors.length] }]}
+              />
+            )}
+            <Text style={labelPosition === "right" ? styles.legendLabelRight : styles.legendLabel}>
+              {item.label}
+            </Text>
+            {labelPosition !== "right" && (
+              <View
+                style={[styles.legendColor, { backgroundColor: colors[index % colors.length] }]}
+              />
+            )}
           </View>
         ))}
       </View>
@@ -74,16 +103,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  legendContainer: {
+  legendContainerBottom: {
     flexDirection: "row",
     flexWrap: "wrap",
     marginTop: 20,
   },
+  legendContainerRight: {
+    marginTop: 20,
+    marginLeft: 20,
+  },
   legendItem: {
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center", // novo estilo
+    justifyContent: "center",
     marginRight: 30,
+    marginBottom: 10,
+  },
+  legendItemRight: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   legendColor: {
@@ -91,6 +129,12 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     marginTop: 7,
+  },
+  legendLabel: {
+    marginLeft: 5,
+  },
+  legendLabelRight: {
+    marginLeft: 10,
   },
 });
 
